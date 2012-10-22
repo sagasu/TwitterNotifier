@@ -13,50 +13,24 @@ namespace Gui
 {
     public partial class TwitterForm : Form
     {
-        private NotifyIcon notifyIcon1;
-        private ContextMenu contextMenu1;
-        private MenuItem menuItem1;
+        private NotifyIcon notifyIcon;
+        private ContextMenu contextMenu;
+        private MenuItem menuItem;
+        private MenuItem showFormMI;
         private bool realyClose;
         private string originalTwitt;
 
         public TwitterForm()
         {
             InitializeComponent();
-            
-            this.contextMenu1 = new ContextMenu();
-            this.menuItem1 = new MenuItem();
 
-            // Initialize contextMenu1 
-            this.contextMenu1.MenuItems.AddRange(
-                        new[] { this.menuItem1 });
+            this.contextMenu = new ContextMenu();
+            ConfigMenu();
 
-            // Initialize menuItem1 
-            this.menuItem1.Index = 0;
-            this.menuItem1.Text = "E&xit";
-            this.menuItem1.Click += this.menuItem1_Click;
-
-            // Set up how the form should be displayed. 
             this.ClientSize = new System.Drawing.Size(292, 266);
-            this.Text = "Notify Icon Example";
+            this.Text = "Twitter Notifications";
 
-            // Create the NotifyIcon. 
-            this.notifyIcon1 = new NotifyIcon(this.components);
-
-            // The Icon property sets the icon that will appear 
-            // in the systray for this application.
-            notifyIcon1.Icon = Resource.appico;
-
-            // The ContextMenu property sets the menu that will 
-            // appear when the systray icon is right clicked.
-            notifyIcon1.ContextMenu = this.contextMenu1;
-
-            // The Text property sets the text that will be displayed, 
-            // in a tooltip, when the mouse hovers over the systray icon.
-            notifyIcon1.Text = "Form1 (NotifyIcon example)";
-            notifyIcon1.Visible = true;
-
-            // Handle the DoubleClick event to activate the form.
-            notifyIcon1.DoubleClick += this.notifyIcon1_DoubleClick;
+            ConfigMenuItem();
 
             originalTwitt = new FeedManager().GetTwitts;
 
@@ -75,30 +49,54 @@ namespace Gui
             }
         }
 
+        private void ConfigMenuItem()
+        {
+            this.notifyIcon = new NotifyIcon(this.components);
+
+            notifyIcon.Icon = Resource.appico;
+
+            notifyIcon.ContextMenu = this.contextMenu;
+
+            notifyIcon.Text = "Is there something new?";
+            notifyIcon.Visible = true;
+
+            notifyIcon.DoubleClick += this.notifyIcon1_DoubleClick;
+        }
+
+        private void ConfigMenu()
+        {
+            this.menuItem = new MenuItem();
+            showFormMI = new MenuItem();
+
+            this.contextMenu.MenuItems.AddRange(
+                        new[] { this.menuItem, showFormMI });
+
+            this.menuItem.Index = 0;
+            this.menuItem.Text = "E&xit";
+            this.menuItem.Click += this.menuItem1_Click;
+
+            showFormMI.Text = "&Config";
+            showFormMI.Click += config_click;
+        }
+
         private void MyTimer_Tick(object sender, EventArgs e)
         {
             if (new FeedManager().IsModified(originalTwitt))
             {
-                notifyIcon1.ShowBalloonTip(10 * 1000, "changed", "changed", new ToolTipIcon());
+                notifyIcon.ShowBalloonTip(10 * 1000, "changed", "changed", new ToolTipIcon());
             }
             else
             {
-                notifyIcon1.ShowBalloonTip(10 * 1000, "same", "same", new ToolTipIcon());
+                notifyIcon.ShowBalloonTip(10 * 1000, "same", "same", new ToolTipIcon());
             }
-            //MessageBox.Show("The form will now be closed.", "Time Elapsed");
-            //this.Close();
         }
 
 
         private void notifyIcon1_DoubleClick(object Sender, EventArgs e)
         {
-            // Show the form when the user double clicks on the notify icon.
-
-            // Set the WindowState to normal if the form is minimized.
             if (this.WindowState == FormWindowState.Minimized)
                 this.WindowState = FormWindowState.Normal;
 
-            // Activate the form.
             this.Activate();
         }
 
@@ -108,5 +106,14 @@ namespace Gui
             Close();
         }
 
+        private void config_click(object Sender, EventArgs e)
+        {
+            Show();
+        }
+
+        private void btnConfirmChange_Click(object sender, EventArgs e)
+        {
+            originalTwitt = new FeedManager().GetTwitts;
+        }
     }
 }
